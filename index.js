@@ -7,6 +7,7 @@
 
 const http = require("http");
 const url = require("url");
+const stringDecoder = require("string_decoder").StringDecoder;
 
 // Server should respond with all requests to a string
 const server = http.createServer(function (req, res) {
@@ -23,21 +24,27 @@ const server = http.createServer(function (req, res) {
     // get the HTTP method
     const method = req.method.toLowerCase();
 
-    // send the response
-    res.end("Hello World\n");
+    // get the headers as an object
+    const headers = req.headers;
 
-    // Log the request path
-    console.log(
-        "Request is received on this path: " +
-            trimmedPath +
-            " with this: " +
-            method +
-            " and with these query string parameters: ",
-        queryStringObject
-    );
+    // get the payload is there is any
+    const decoder = new StringDecoder("utf-8");
+    const buffer = "";
+    req.on("data", function (data) {
+        buffer += decoder.write(data);
+    });
+    req.on("end", function () {
+        buffer += decoder.end();
+
+        // send the response
+        res.end("Hello World\n");
+
+        // Log the request path
+        console.log("Request received with this payload ", buffer);
+    });
 });
 
 // Start the server, and have it listen on port 3000
-server.listen(4000, function () {
-    console.log("The server is listening on port 4000 now");
+server.listen(5500, function () {
+    console.log("The server is listening on port 5500 now");
 });
